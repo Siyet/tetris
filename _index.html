@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/kube.min.css">
+    <link rel="stylesheet" href="css/kube.theme.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="page">
+        <main class="main">
+            <h1>Inventorisation</h1>
+
+            <span class="loc_num">Enter location number:</span>
+            <div class="enter_number">
+                <input type="text" id="query_field">
+                <button class="button" onClick = "getdetails(event)">Find it</button>
+            </div>
+            <span>You can enter the box number (prefix 03), column number. You will be shown what is on this shelf.</span>
+
+            <span id="founding_stats" class="found" style="display:none;">Found <b id="resp_all">0</b> items at location <b class="query_val"></b></span>
+
+            <div class="find_sub_loc" style="display:none;"> </div>
+            <div id="founded_items"> </div>
+
+            <div class="labels">
+                <span>Label`s ready to print: <b class="count">0</b></span>
+            </div>
+
+            <span>if all items are checked and the quantity is correct, click the button below:</span>
+
+            <div class="print">
+                <button id="btnPrint" class="button" onClick="printLabels()">Print labels</button>
+                <span>Attention! <br>
+                    The total number of items in this box will be printed.</span>
+            </div>
+        </main>
+    </div>
+
+
+
+
+
+    <script src="js/jquery-3.3.1.js "></script>
+    <script src="js/kube.min.js "></script>
+    <script src="js/script.js "></script>
+    <script>
+        $K.init();
+        let current_resuts = null;
+        let is_searching = false;
+        function getSum() {
+            var inputs = $('input[type=number]');
+            var sum = 0;
+            for (var i = 0; i <= inputs.length - 1; i++) {
+                sum = sum + parseInt(inputs[i].value, 10);
+            }
+            $('.count').html(sum);
+        }
+        $(window).on('load', function() {
+            getSum();
+        });
+        $('input[type=number]').on('change', function() {
+            getSum();
+        });
+        function setStext(text) {
+            if (text) {
+                $('#query_field').val(text);
+                query_str = text;
+            }
+            if (!is_searching) getdetails();
+        }
+        function printLabels() {
+            $.post( "edit1.php", { goods: current_resuts } );
+        }
+        function updateStock(ev) {
+            let btn = $(ev.target);
+            btn.attr("disabled", "disabled");
+            let stock = btn.parents("td").prev().find('input[type="number"]').val();
+            let guid = btn.parents("td").prev().find('input[type="hidden"]').val();
+            $.ajax({
+                type: "POST",
+                url: "edit.php",
+                data: {stock: stock, guid: guid}
+            }).done(function( result ) {
+                console.log("result: ", result);
+                btn.attr("disabled", null);
+                btn.parents("td").next().html(`<div class="green"><div class="white"></div></div>`);
+                let can_print = true;
+                for (let key in current_resuts){
+                    current_resuts[key].forEach(prod=>{
+                        if (prod.guid == guid)
+                            prod.vdate = new Date().format("yyyy-mm-dd HH:MM:ss");
+                        if (!prod.vdate) can_print = false;
+                    })
+                }
+                // if (can_print) $("#btnPrint").attr("disabled", null);
+                // else $("#btnPrint").attr("disabled", "disabled");
+            });
+        }
+        function getdetails(ev=null){
+            let button = ev ? $(ev.target) : $(".enter_number > button");
+            is_searching = true;
+            button.attr("disabled", "disabled").text("searching...");
+            let query_str = $('#query_field').val();
+            
+            $.ajax({
+                type: "POST",
+                url: "adapter.php",
+                data: {query: query_str}
+            }).done(function( result ) {
+                
+                button.attr("disabled", null).text("Find it");
+                is_searching = false;
+                let resp = $.parseJSON(result);
+                console.log(resp)
+                let locations_groups = [];
+                $(".found_item").remove();
+                let main = $("#founded_items");
+                for (let key in resp){
+                    if (key != "type" && key != "all" && key != "time"){
+                        let storagelocation = resp[key]["storagelocation"].split(/[\s,]+/);
+                        storagelocation.forEach(el=>{
+                            if (el.indexOf(query_str) !== -1){
+                                if (!(el in locations_groups)) locations_groups[el] = [];
+                                locations_groups[el].push(resp[key]);
+                            }
+                        });
+                    }
+                }
+                $('#founding_stats').css("display", "block");
+                $('#resp_all').text(resp.all);
+                $('.query_val').text(query_str);
+                $('.find_sub_loc').css("display", "none").html("");
+                let can_print = true;
+                for (let key in locations_groups) {
+                    if (key != query_str)
+                        $('.find_sub_loc').append("<a href='#' onClick='setStext(\""+key+"\")' style='display:inline-block;'>"+key+"</a>");
+                    let table = main.append(`<div class="found_item"><h2>`+key+`</h2><table class="is-responsive"></table></div>`).find("table");
+                    locations_groups[key].forEach(prod=>{
+                        let tr2append = `<tr class="is-middle">
+                                <td>`+prod.title;
+                        if (prod.expiration) tr2append+=`<br/><small>Expiration: `+prod.expiration+`</small>`;
+                        tr2append+=`</td>
+                                <td><input type="number" value="`+prod.stock+`"><input type="hidden" value="`+prod.guid+`"></td>
+                                <td><button class="button" onClick="updateStock(event)"`;
+                        if (prod.guid !== "NS010149") tr2append += `disabled="disabled"`;
+                        tr2append += `><img src="img/refresh-button.svg" alt=""></button></td>
+                                <td>`;
+                        vdate = new Date(Date.parse(prod.vdate));
+                        vdate.setMonth(vdate.getMonth() + 3);
+                        if (vdate.getTime() > new Date().getTime()) tr2append += `<div class="green"><div class="white"></div></div>`;
+                        else can_print = false;
+                        tr2append += `</td><td>`;
+                        let storagelocation = prod["storagelocation"].split(/[\s,]+/);
+                        storagelocation.forEach(el=>{
+                            if (el !== key){
+                                tr2append += `<a href="#" onClick="setStext('`+el+`')">`+el+`</a><br/>`;
+                            }
+                        });
+                        tr2append += `</td></tr>`;
+                        table.append(tr2append);
+                    })
+                    
+                }
+                current_resuts = locations_groups;
+                // if (can_print) $("#btnPrint").attr("disabled", null);
+                if ($('.find_sub_loc').html()) $('.find_sub_loc').css("display", "block").prepend(`<span>System find sub-locations in main location</span>`);
+                getSum();
+                $('input[type=number]').on('change', function() {
+                    getSum();
+                });
+            });
+        }
+    </script>
+
+</body>
+
+</html>

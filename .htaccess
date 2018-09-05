@@ -1,0 +1,20 @@
+RewriteEngine on
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# modRewrite pages (masking)
+#RewriteRule ^index.php/?$ /index.php
+#RewriteRule ^(.*)404/?$ /404.php
+#
+#ErrorDocument 404 /404/
+
+
+# caching files
+FileETag MTime Size
+<ifmodule mod_expires.c>
+<filesmatch ".(jpg|jpeg|gif|png|ico|css|js)$">
+ExpiresActive on
+ExpiresDefault "access plus 1 month"
+</filesmatch>
+</ifmodule>

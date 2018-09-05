@@ -1,0 +1,256 @@
+@font-face {
+    font-family: NexaBold;
+    src: url(fonts/NexaBold.otf);
+}
+
+@font-face {
+    font-family: NexaLight;
+    src: url(fonts/NexaLight.otf);
+}
+
+@font-face {
+    font-family: Yandex-Sans-Bold;
+    src: url(fonts/Yandex-Sans-Text-Bold.ttf);
+}
+
+@font-face {
+    font-family: Yandex-Sans-Light;
+    src: url(fonts/Yandex-Sans-Text-Light.ttf);
+}
+
+@font-face {
+    font-family: Yandex-Sans-Regular;
+    src: url(fonts/Yandex-Sans-Text-Regular.ttf);
+}
+
+@font-face {
+    font-family: Yandex-Sans-Medium;
+    src: url(fonts/Yandex-Sans-Text-Medium.ttf);
+}
+
+span {
+    display: block;
+    color: #637381;
+    font-family: Yandex-Sans-Regular;
+}
+
+.main {
+    padding: 80px;
+}
+
+.main h1 {
+    color: #2962e3;
+    font-size: 48px;
+    margin-bottom: 40px;
+    font-family: Yandex-Sans-Bold;
+}
+
+.main span.loc_num {
+    font-size: 16px;
+    color: #637381;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.main .enter_number {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.main .enter_number input {
+    width: 400px;
+    height: 40px;
+    margin-right: 20px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.main .enter_number .button {
+    width: 140px;
+    min-width: 90px;
+    height: 40px;
+    min-height: auto;
+}
+
+.main .enter_number+span {
+    font-size: 12px;
+    max-width: 400px;
+    margin-top: 10px;
+    line-height: 14px;
+}
+
+.main span.found {
+    font-size: 18px;
+    margin: 20px 20px 0;
+    line-height: 20px;
+    font-weight: normal;
+}
+
+.main .find_sub_loc {
+    display: flex;
+    justify-content: flex-start;
+    margin: 20px 0 0 20px;
+    flex-wrap: wrap;
+}
+
+.main .find_sub_loc span {
+    width: 380px;
+    margin-right: 20px;
+    line-height: 20px;
+    font-size: 18px;
+}
+
+.main .find_sub_loc a {
+    font-size: 18px;
+    color: #2962e3;
+    font-family: Yandex-Sans-Regular;
+    display: block;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+.main h2 {
+    color: #161a40;
+    font-size: 24px;
+    font-family: Yandex-Sans-Regular;
+    font-weight: normal;
+    margin: 20px 0;
+}
+
+table tr:nth-child(odd) {
+    background: #ebf2f3;
+}
+
+table {
+    width: 1000px;
+    font-family: Yandex-Sans-Regular;
+}
+
+tr {
+    border: none;
+}
+
+td {
+    padding: 10px 20px !important;
+    color: #2962e3;
+    border: none;
+}
+
+td:first-child {
+    max-width: 700px;
+}
+
+td:last-child {
+    min-width: 100px;
+    max-width: 100px;
+}
+
+td input {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    border: 1px solid #cccccc;
+    padding: 10px 0;
+    text-align: center;
+}
+
+td button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+
+td button img {
+    max-width: 12px;
+}
+
+.labels {
+    font-size: 18px;
+    font-family: Yandex-Sans-Regular;
+    border-top: 1px solid #637381;
+    width: 730px;
+    margin: 20px 0;
+    padding: 10px 32.5px 0 0;
+    text-align: right;
+}
+
+.labels span {
+    color: #161a40;
+}
+
+.labels span b {
+    color: #2962e3;
+    font-size: Yandex-Sans-Bold;
+    font-size: 20px;
+    margin-left: 20px
+}
+
+.main .print {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: Yandex-Sans-Regular;
+}
+
+.main .print span {
+    font-size: 12px;
+}
+
+.main .print .button {
+    width: 160px;
+    height: 40px;
+    min-height: auto;
+    padding: 0;
+    margin-right: 20px;
+}
+
+td .green {
+    width: 40px;
+    height: 40px;
+    background: #97df03;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+td .green .white {
+    background: white;
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+}
+
+@media screen and (max-width: 1000px) {
+    .labels,
+    table {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .main {
+        padding: 40px 20px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    table tr td {
+        text-align: center !important;
+    }
+    td:last-child,
+    td a,
+    td input,
+    td .green {
+        margin: 0 auto;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .main h1 {
+        font-size: 11vw;
+    }
+}
