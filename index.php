@@ -49,8 +49,12 @@ if (isset($_GET['query'])) {
                 $response[$key] = $row;
             else {
                 $goods[] = $row;
+                $storagelocation = implode( " ", array_map(
+                    function ($item) { return preg_match("/[0-9]{5}/", $item) ? "0" + $item : $item; },
+                    preg_split("/[\s,]+/", $row['storagelocation'])
+                ) );
                 $response[] = array(
-                    "storagelocation" => $row["storagelocation"],
+                    "storagelocation" => $storagelocation,
                     "stock" => $row["stock"],
                     "title" => $row["title"],
                     "guid"  => $row["guid"],
@@ -59,7 +63,7 @@ if (isset($_GET['query'])) {
                     "media" => $row["media"]
                 );
             }
-        }
+        } unset($key, $row, $storagelocation);
         if ((int)$response["all"] > count($goods)){
             getItemsByPage($page += 1);
         }
@@ -263,7 +267,6 @@ if (isset($_GET['query'])) {
     <script src="js/kube-addons.min.js "></script>
     <script src="js/script.js "></script>
     <script>
-        $K.init();
         function checkVDate(prod_vdate) {
             vdate = new Date(Date.parse(prod_vdate));
             vdate.setMonth(vdate.getMonth() + 3);
@@ -296,11 +299,14 @@ if (isset($_GET['query'])) {
         for (let key in locations_groups) {
             if (key != query_str)
                 find_sub_loc.append("<a href='#' onClick='setStext(\""+key+"\")' style='display:inline-block;'>"+key+"</a>");
-            let table = main.append(`<div class="found_item"><h2>`+key+`</h2><table class="is-responsive"></table></div>`).find("table");
+            let found_item = $(`<div class="found_item"><h2>`+key+`</h2><table class="is-responsive"></table></div>`);
+            main.append(found_item);
+            let table = found_item.find("table");
             locations_groups[key].forEach(prod=>{
                 let tr2append = `<tr class="is-middle"><td style="width:120px"><img class="thumbnail" src="`+prod.media+`" style="width:80px;"></td>
-                        <td>`+prod.title;
-                if (prod.expiration) tr2append+=`<br/><small>Expiration: `+prod.expiration+`</small>`;
+                        <td>` + prod.title;
+                if (prod.expiration) tr2append+=`<br/><small>Expiration: `+prod.expiration+`</small>`
+                else if (prod.title.indexOf("(x)") !== -1) tr2append+=`<br/><small>Expiration: N/A</small>`;
                 tr2append+=`</td>
                         <td><input type="number" value="`+prod.stock+`"><input type="hidden" value="`+prod.guid+`"></td>
                         <td><button class="button" onClick="updateStock(event)"`;
