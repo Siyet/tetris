@@ -3,7 +3,7 @@
 require "vendor/autoload.php";
 require "config.php";
 if (isset($_POST['filling'])){
-	$query = isset($_POST['query']) ? $_POST['query'] : "";
+    $query = isset($_POST['query']) ? $_POST['query'] : "";
 	$_store_loc = explode("/", $query)[0];
     if ($_store_loc) {
         $store_loc = str_pad($_store_loc, 6, "0", STR_PAD_LEFT);
@@ -35,8 +35,11 @@ if (isset($_POST['filling'])){
 		'guid' => isset($_POST['guid']) ? $_POST['guid'] : ''
 	);
 	if (isset($_POST['stock'])){
+        $dt = new DateTime("now", new DateTimeZone('America/New_York'));
+        $dt->setTimestamp(time());
 		$postFields['stock'] = $_POST['stock'];
-		$postFields['vdate'] = (string)date("Y-m-d H:i:s");
+		$postFields['vdate'] = (string)$dt->format('Y-m-d H:i:s');
+        unset($dt);
 	} else {
 		$postFields['storagelocation'] = isset($_POST['storagelocation']) ? $_POST['storagelocation'] : '';
 	}
@@ -71,7 +74,7 @@ if (isset($_POST['filling'])){
 	$response = curl_exec($curl);
 	$err = curl_error($curl);
 	curl_close($curl);
-}	
+}
 	// header('Content-Type: application/json');
 if ($err)
 	echo "cURL Error #:" . $err;
