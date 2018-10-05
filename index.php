@@ -38,7 +38,7 @@ if (isset($_GET['query'])) {
         ));
         $_response = curl_exec($curl);
         $err = curl_error($curl);
-        
+
         if($err){
             echo "cURL Error #:" . $err;
             exit();
@@ -49,12 +49,12 @@ if (isset($_GET['query'])) {
                 $response[$key] = $row;
             else {
                 $goods[] = $row;
-                $storagelocation = implode( " ", array_map(
-                    function ($item) { return preg_match("/[0-9]{5}/", $item) ? "0" + $item : $item; },
-                    preg_split("/[\s,]+/", $row['storagelocation'])
-                ) );
+                // $storagelocation = implode( " ", array_map(
+                //     function ($item) { return preg_match("/[0-9]{5}/", $item) ? "0" + $item : $item; },
+                //     preg_split("/[\s,]+/", $row['storagelocation'])
+                // ) );
                 $response[] = array(
-                    "storagelocation" => $storagelocation,
+                    "storagelocation" => $row["storagelocation"],
                     "stock" => $row["stock"],
                     "title" => $row["title"],
                     "guid"  => $row["guid"],
@@ -154,7 +154,7 @@ if (isset($_GET['query'])) {
                 $qr->setEncoding('UTF-8');
                 $qr->setWriterByName('png');
                 $image = $qr->writeDataUri();
-                
+
                 // $a = preg_split("/\s*;\s*/", $image);
                 // array_splice($a, 1, 0, "charset=binary");
                 // $image = implode(";", $a);
@@ -220,14 +220,12 @@ if (isset($_GET['query'])) {
     <link rel="stylesheet" href="css/kube-addons.min.css">
     <link rel="stylesheet" href="css/style.css">
 
-    <title>Document</title>
+    <title>tetris</title>
 </head>
 
 <body>
     <div class="page">
         <main class="main">
-            <h1>Inventorisation</h1>
-
             <span class="loc_num">Enter location number:</span>
             <div class="enter_number">
                 <input type="text" id="query_field">
@@ -235,7 +233,7 @@ if (isset($_GET['query'])) {
             </div>
             <span>You can enter the box number (prefix 03), column number. You will be shown what is on this shelf.</span>
 <?php if ($query) { ?>
-            <span class="found">The filling of the storage location: 
+            <span class="found">The filling of the storage location:
                 <button style="margin-left:16px" onClick="setFilling(event, 0)" class="button <?php echo !$filling || $filling=='0' ? '' : 'is-secondary' ; ?>">0%</button>
                 <button onClick="setFilling(event, 25)" class="button <?php echo $filling && $filling=='25' ? '' : 'is-secondary' ; ?>">25%</button>
                 <button onClick="setFilling(event, 50)" class="button <?php echo $filling && $filling=='50' ? '' : 'is-secondary' ; ?>">50%</button>
@@ -272,7 +270,7 @@ if (isset($_GET['query'])) {
             vdate.setMonth(vdate.getMonth() + 3);
             return prod_vdate && vdate.getTime() > new Date().getTime()
         }
-        let find_resuts = $.parseJSON(`<?php echo $response; ?>` || null);
+        let find_resuts = <?php echo $response ? $response : "[]"; ?>;
         // console.log(find_resuts);
         let locations_groups = [];
         let main = $("#founded_items");
@@ -304,8 +302,8 @@ if (isset($_GET['query'])) {
             let table = found_item.find("table");
             locations_groups[key].forEach(prod=>{
                 let tr2append = `<tr class="is-middle"><td style="width:120px"><img class="thumbnail" src="`+prod.media+`" style="width:80px;"></td>
-                        <td>` + prod.title;
-                if (prod.expiration) tr2append+=`<br/><small>Expiration: `+prod.expiration+`</small>`
+                        <td>` + prod.title + `<br/><code>`+prod.guid+`</code>`;
+                if (prod.expiration) tr2append+=`<small>Expiration: `+prod.expiration+`</small>`
                 else if (prod.title.indexOf("(x)") !== -1) tr2append+=`<br/><small>Expiration: N/A</small>`;
                 tr2append+=`</td>
                         <td><input type="number" value="`+prod.stock+`"><input type="hidden" value="`+prod.guid+`"></td>
@@ -313,7 +311,7 @@ if (isset($_GET['query'])) {
                 // if (prod.guid !== "NS010149") tr2append += `disabled="disabled"`;
                 tr2append += `><b>↻</b></button></td>
                         <td>`;
-                
+
                 if (checkVDate(prod.vdate)) tr2append += `<div class="green"><div class="white"></div></div>`;
                 else can_print = false;
                 tr2append += `</td><td>`;
@@ -328,7 +326,7 @@ if (isset($_GET['query'])) {
             })
         }
         if (can_print) $("#btnPrint").attr("disabled", null);
-        if (find_sub_loc.html()) 
+        if (find_sub_loc.html())
             find_sub_loc.css("display", "block")
                         .prepend(`<span>System find sub-locations in main location</span>`);
         getSum();
@@ -435,9 +433,9 @@ if (isset($_GET['query'])) {
                     locations_groups[key].forEach(prod=>{
                         if (prod.guid == guid){
                             let now = new Date();
-                            prod.vdate = now.getFullYear().toString() + "-" 
-                                       + now.getMonth().toString().padStart(2,"0") + "-" 
-                                       + now.getDate().toString().padStart(2,"0") + " " 
+                            prod.vdate = now.getFullYear().toString() + "-"
+                                       + now.getMonth().toString().padStart(2,"0") + "-"
+                                       + now.getDate().toString().padStart(2,"0") + " "
                                        + now.getHours().toString().padStart(2,"0") + ":"
                                        + now.getMinutes().toString().padStart(2,"0") + ":"
                                        + now.getSeconds().toString().padStart(2,"0");
@@ -456,14 +454,14 @@ if (isset($_GET['query'])) {
             button.attr("disabled", "disabled").text("searching...");
             window.location.href=window.location.protocol + "//" + window.location.host + "/?query=" + $('#query_field').val();
             // let query_str = $('#query_field').val();
-            
+
             // $.ajax({
             //     type: "POST",
             //     url: "adapter.php",
             //     data: {query: query_str}
             // }).done(function( result ) {
-                
-                
+
+
             // });
         }
     </script>

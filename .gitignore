@@ -1,3 +1,5 @@
 dumps
 sftp-config.json
 config.php
+config.py
+__pycache__/
